@@ -1,7 +1,7 @@
 # MMM-SL
 This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can fetch realtime information from SL.se and show departure times for the configured stops.
 
-![Realtime information](/teppos/MMM-SL/blob/master/img/screenshot.PNG?raw=true "Realtime information")
+![Realtime information](/img/screenshot.PNG?raw=true "Realtime information")
 
 ## Installation
 Navigate into your MagicMirror's `modules` folder and execute `git clone <TODO URL>`.
