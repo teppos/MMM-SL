@@ -53,8 +53,7 @@ A siteid contains of an `id` and `type` which is an optional list of transportat
 
   **Example 1:** show only bus and metro departures from T-centralen
 
-```
-#!javascript
+```javascript
 siteids: [
   {
     id: "9001",
@@ -65,8 +64,7 @@ siteids: [
 
   **Example 2:** show all departures from T-centralen
 
-```
-#!javascript
+```javascript
 siteids: [
   {
     id: "9001"
