@@ -70,7 +70,7 @@ Module.register("MMM-SL",{
 
       // samma hållplats -> kolla på destinationen
       if ( a.Destination > b.Destination) return 1;
-      if ( b.Destination > a.Destination) return -1
+      if ( b.Destination > a.Destination) return -1;
 
       return 0;
     });

@@ -18,10 +18,9 @@ module.exports = NodeHelper.create({
       console.log('Lets get some SL realtime data');
 
       for (var i = 0; i < this.config.siteids.length; i++) {
-        var siteId = this.config.siteids[i]
+        var siteId = this.config.siteids[i];
 
         var apiUrl = this.config.apiBase + this.config.realTimeEndpoint + this.getParams(siteId);
-        var self = this;
 
         request({
           url: apiUrl,
