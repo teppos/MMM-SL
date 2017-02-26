@@ -4,7 +4,7 @@ This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror)
 ![Realtime information](/img/screenshot.PNG?raw=true "Realtime information")
 
 ## Installation
-Navigate into your MagicMirror's `modules` folder and execute `git clone <TODO URL>`.
+Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/teppos/MMM-SL.git`.
 
 
 ## Using the module
