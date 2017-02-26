@@ -34,7 +34,7 @@ The following properties can be configured:
 |:-----------------------|:----------------------------------------------------|
 | **realtimeappid**      | The API key for the realtime data, which can be obtained at  [www.trafiklab.se](https://www.trafiklab.se/api/sl-realtidsinformation-4) |
 | **timewindow**         | The time window which departures should be downloaded. In minutes from now. Min `1`. Max `60`. Default `10` |
-| **siteids**            | List of siteid objects. See above explanation of siteids |
+| **siteids**            | List of siteid objects. See explanation below of siteids |
 | **updateNotification** | The notification to listen for. If received then will trigger update of departure times. |
 
 
