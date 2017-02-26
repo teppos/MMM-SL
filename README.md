@@ -10,8 +10,7 @@ Navigate into your MagicMirror's `modules` folder and execute `git clone <TODO U
 ## Using the module
 
 To use this module, add it to the modules array in the `config/config.js` file:
-```
-#!javascript
+```javascript
 modules: [
 	{
 		module: 'MMM-SL',
