@@ -22,7 +22,7 @@ Module.register("MMM-SL",{
   },
 
   start: function() {
-    Log.log(this.name + ' is starting!');
+    Log.log(this.name + " is starting!");
     this.updateTimer = null;
     this.loaded = false;
     this.lastUpdated = null;
@@ -35,7 +35,7 @@ Module.register("MMM-SL",{
 
   // Override dom generator.
   getDom: function() {
-    Log.log('lastUpdated: '+this.lastUpdated);
+    Log.log("lastUpdated: "+this.lastUpdated);
 
     var wrapper = document.createElement("div");
 
@@ -65,12 +65,12 @@ Module.register("MMM-SL",{
     var stopName = "";
 
     this.realTimeDataNew.sort(function(a,b) {
-      if ( a.StopAreaName > b.StopAreaName) return 1;
-      if ( b.StopAreaName > a.StopAreaName) return -1;
+      if ( a.StopAreaName > b.StopAreaName) { return 1; }
+      if ( b.StopAreaName > a.StopAreaName) { return -1; }
 
       // samma hållplats -> kolla på destinationen
-      if ( a.Destination > b.Destination) return 1;
-      if ( b.Destination > a.Destination) return -1;
+      if ( a.Destination > b.Destination) { return 1; }
+      if ( b.Destination > a.Destination) { return -1; }
 
       return 0;
     });
@@ -161,7 +161,7 @@ Module.register("MMM-SL",{
     clearTimeout(this.updateTimer);
     this.updateTimer = setTimeout(function() {
       self.ableToUpdate=true;
-       Log.log(self.name + " is able to update again");
+      Log.log(self.name + " is able to update again");
     }, nextLoad);
   },
 
@@ -173,9 +173,9 @@ Module.register("MMM-SL",{
 
   socketNotificationReceived: function(notification, payload) {
     var self = this;
-    Log.info('Wunderground received ' + notification);
-    if (notification === 'SL_REALTIME_DATA') {
-      Log.info('received SL_REALTIME_DATA');
+    Log.info("Departure times received " + notification);
+    if (notification === "SL_REALTIME_DATA") {
+      Log.info("received SL_REALTIME_DATA");
       Log.info(payload);
       self.processRealTimeInfo(JSON.parse(payload));
     }
@@ -187,7 +187,7 @@ Module.register("MMM-SL",{
   * argument data object - Weather information received form openweather.org.
   */
   processRealTimeInfo: function(data) {
-    Log.log('Updating Real time info');
+    Log.log("Updating departure times");
     if ( data.StatusCode !== 0) {
       // TODO: Error code handling. i.e. Show error message either on mirror or atleast log.
     } else {

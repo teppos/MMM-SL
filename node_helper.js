@@ -1,10 +1,10 @@
 var NodeHelper = require("node_helper");
-var request = require('request');
+var request = require("request");
 module.exports = NodeHelper.create({
 
   start: function() {
-    console.log(this.name + ' is started!');
-},
+    console.log(this.name + " is started!");
+  },
 
   //Subclass socketNotificationReceived received.
   socketNotificationReceived: function(notification, payload) {
@@ -15,7 +15,7 @@ module.exports = NodeHelper.create({
     if(notification === "GET_REALTIME_SL"){
 
       this.config = payload;
-      console.log('Lets get some SL realtime data');
+      console.log("Lets get some SL realtime data");
 
       for (var i = 0; i < this.config.siteids.length; i++) {
         var siteId = this.config.siteids[i];
@@ -24,14 +24,14 @@ module.exports = NodeHelper.create({
 
         request({
           url: apiUrl,
-          method: 'GET'
+          method: "GET"
         }, function(error, response, body) {
 
           if (!error && response.statusCode == 200) {
             // console.log(moment().format() + " 1 " + self.name + ": " + body);
-            self.sendSocketNotification('SL_REALTIME_DATA',body);
+            self.sendSocketNotification("SL_REALTIME_DATA",body);
           } else {
-            console.log(moment().format() + " 2 " + self.name + ": " + error);
+            console.log(self.name + ": " + error);
           }
         });
       }
@@ -41,16 +41,16 @@ module.exports = NodeHelper.create({
   getParams: function(siteId) {
     //?key=<DIN API NYCKEL>&siteid=<SITEID>&timewindow=<TIMEWINDOW>
     var params = "?";
-    params += 'key='+this.config.realtimeappid;
-    params += '&siteid='+siteId.id;
+    params += "key="+this.config.realtimeappid;
+    params += "&siteid="+siteId.id;
 
     if( siteId.type !== undefined) {
       for (var i = 0; i < this.config.types.length; i++) {
         var type = this.config.types[i];
         if ( siteId.type.includes(type) ) {
-          params+='&'+type+'=true';
+          params+="&"+type+"=true";
         } else {
-          params+='&'+type+'=false';
+          params+="&"+type+"=false";
         }
       }
     }
