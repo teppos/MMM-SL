@@ -1,0 +1,20 @@
+{
+  "name": "mmm-sl",
+  "version": "1.0.0",
+  "description": "This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can fetch realtime information from SL.se and show departure times for the configured stops.",
+  "main": "MMM-SL.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teppos/MMM-SL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/teppos/MMM-SL/issues"
+  },
+  "homepage": "https://github.com/teppos/MMM-SL#readme",
+  "dependencies": {
+    "request": "^2.79.0"
+  }
+}
