@@ -36,6 +36,13 @@ module.exports = NodeHelper.create({
         });
       }
     }
+    else if (notification === "DECREMENT_SL") {
+
+      console.log("Lets decrement the SL data");
+
+      this.sendSocketNotification("SL_DECREMENT_TIMERS");
+
+    }
   },
 
   getParams: function(siteId) {
