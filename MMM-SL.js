@@ -72,6 +72,32 @@ Module.register("MMM-SL",{
       if ( a.Destination > b.Destination) { return 1; }
       if ( b.Destination > a.Destination) { return -1; }
 
+      // Parse DisplayTime String to make comparable objects
+      // "Nu" should be highest
+      // Single digit 'minutes remaining' higher than double digit
+      // 'minutes remaining' (always?) higher than 'specific times'
+      // Single digit 'specific times' higher than double digit
+      var x = -1;
+      var y = -1;
+      if ( a.DisplayTime.localeCompare("Nu") == 0 ) { x = 0; }
+      else if ( /\b\d\smin/.test(a.DisplayTime) ) { x = 1; }
+      else if ( /\b\d{2}\smin/.test(a.DisplayTime) ) { x = 2; }
+      else if ( /\b\d{1}.\d{2}/.test(a.DisplayTime) ) { x = 3; }
+      else if ( /\b\d{2}.\d{2}/.test(a.DisplayTime) ) { x = 4; }
+
+      if ( b.DisplayTime.localeCompare("Nu") == 0 ) { y = 0; }
+      else if ( /\b\d\smin/.test(b.DisplayTime) ) { y = 1; }
+      else if ( /\b\d{2}\smin/.test(b.DisplayTime) ) { y = 2; }
+      else if ( /\b\d{1}.\d{2}/.test(b.DisplayTime) ) { y = 3; }
+      else if ( /\b\d{2}.\d{2}/.test(b.DisplayTime) ) { y = 4; }
+
+      // samma hållplats+destination -> kolla på tiden
+      if ( x > y ) { return 1; }
+      if ( y > x ) { return -1; }
+
+      // Båda avgångstiderna har samma format, då kan vi jämföra dem 
+      return a.DisplayTime.localeCompare(b.DisplayTime);
+
       return 0;
     });
     for (var i = 0; i < this.realTimeDataNew.length; i++) {
@@ -101,17 +127,17 @@ Module.register("MMM-SL",{
       iconCell.appendChild(icon);
 
       var lineNumberCell = document.createElement("td");
-      lineNumberCell.innerHTML = forecast.LineNumber;
+      lineNumberCell.innerHTML = "&nbsp;" + forecast.LineNumber;
       lineNumberCell.className = "align-right bright line-number";
       row.appendChild(lineNumberCell);
 
       var destinationCell = document.createElement("td");
-      destinationCell.innerHTML = forecast.Destination;
+      destinationCell.innerHTML = "&nbsp;" + forecast.Destination;
       destinationCell.className = "align-right destination";
       row.appendChild(destinationCell);
 
       var displayTimeCell = document.createElement("td");
-      displayTimeCell.innerHTML = forecast.DisplayTime;
+      displayTimeCell.innerHTML = "&nbsp;" + forecast.DisplayTime;
       displayTimeCell.className = "align-right display-time";
       row.appendChild(displayTimeCell);
 
@@ -150,6 +176,37 @@ Module.register("MMM-SL",{
       this.preventUpdate();
       Log.log(this.name + " further updates are prevented");
     }
+    else if (notification === "DECREMENT_SL") {
+      Log.info("received DECREMENT_SL");
+      Log.info(payload);
+      this.decrementTimers(payload);
+    }
+  },
+
+  decrementTimers: function() {
+    Log.log(this.name + " attempting to decrement timers");
+    for ( var i=this.realTimeDataNew.length-1; i>=0; i-- ) {
+      Log.log(this.name + " attempting to decrement timers for element " + i);      
+      if ( this.realTimeDataNew[i].DisplayTime.localeCompare("Nu") === 0) {
+        this.realTimeDataNew[i].DisplayTime = "Nyss";
+      }      
+      else if ( this.realTimeDataNew[i].DisplayTime.localeCompare("Nyss") === 0) {
+        this.realTimeDataNew.splice(i,1);
+      }      
+      else if (/\b\d{1,2}\smin/.test(this.realTimeDataNew[i].DisplayTime)) {
+        var time = parseInt(this.realTimeDataNew[i].DisplayTime) - 1;
+        if (time === 0) {
+          this.realTimeDataNew[i].DisplayTime = "Nu";
+        }
+        else {
+          this.realTimeDataNew[i].DisplayTime = "" + time + " min";
+        }
+      }
+    }
+
+    this.show(this.config.animationSpeed, {lockString:this.identifier});
+    this.loaded = true;
+    this.updateDom(this.config.animationSpeed);
   },
 
   preventUpdate: function(delay) {
@@ -204,6 +261,8 @@ Module.register("MMM-SL",{
             LineNumber: forecast.LineNumber,
             StopAreaName: forecast.StopAreaName,
             DisplayTime: forecast.DisplayTime,
+            ExpectedDateTime: forecast.ExpectedDateTime,
+            TimeTabledDateTime: forecast.TimeTabledDateTime,
           });
         }
       }
