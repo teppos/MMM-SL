@@ -95,7 +95,7 @@ Module.register("MMM-SL",{
       if ( x > y ) { return 1; }
       if ( y > x ) { return -1; }
 
-      // Båda avgångstiderna har samma format, då kan vi jämföra dem 
+      // Båda avgångstiderna har samma format, då kan vi jämföra dem
       return a.DisplayTime.localeCompare(b.DisplayTime);
 
       return 0;
@@ -108,14 +108,36 @@ Module.register("MMM-SL",{
 
       if ( stopName.localeCompare(forecast.StopAreaName) !== 0) {
         var stopNameCell = document.createElement("td");
-        stopNameCell.innerHTML = forecast.StopAreaName;
+        var walkTime = "";
+        if ( this.config.debug === true ) {
+          var time = this.getWalkTime(forecast.SiteId);
+          if ( time > 0) walkTime = " ("+time +")"
+          stopNameCell.colSpan=3;
+        } else {
+          stopNameCell.colSpan=4;
+        }
+        stopNameCell.innerHTML = forecast.StopAreaName+walkTime;
+
         stopNameCell.className = "align-right bright stop-area-name";
-        stopNameCell.colSpan=4;
         row.appendChild(stopNameCell);
 
+        stopName = forecast.StopAreaName;
+
+        if ( this.config.debug === true ) {
+          var siteIdCell = document.createElement("td");
+          siteIdCell.innerHTML = forecast.SiteId;
+          siteIdCell.className = "align-right dimmed light xsmall";
+          //stopNameCell.colSpan=1;
+          row.appendChild(siteIdCell);
+
+          // var walkTimeCell = document.createElement("td");
+          // walkTimeCell.innerHTML = this.getWalkTime(forecast.SiteId);
+          // walkTimeCell.className = "align-right dimmed light xsmall";
+          // //stopNameCell.colSpan=1;
+          // row.appendChild(walkTimeCell);
+        }
         row = document.createElement("tr");
         table.appendChild(row);
-        stopName = forecast.StopAreaName;
       }
 
       var iconCell = document.createElement("td");
@@ -141,6 +163,12 @@ Module.register("MMM-SL",{
       displayTimeCell.className = "align-right display-time";
       row.appendChild(displayTimeCell);
 
+      if ( this.config.debug === true ) {
+        var DirectionCell = document.createElement("td");
+        DirectionCell.innerHTML = "&nbsp;" + forecast.JourneyDirection;
+        DirectionCell.className = "align-right dimmed light xsmall display-direction";
+        row.appendChild(DirectionCell);
+      }
       // if (this.config.fade && this.config.fadePoint < 1) {
       // 	if (this.config.fadePoint < 0) {
       // 		this.config.fadePoint = 0;
@@ -186,13 +214,13 @@ Module.register("MMM-SL",{
   decrementTimers: function() {
     Log.log(this.name + " attempting to decrement timers");
     for ( var i=this.realTimeDataNew.length-1; i>=0; i-- ) {
-      Log.log(this.name + " attempting to decrement timers for element " + i);      
+      Log.log(this.name + " attempting to decrement timers for element " + i);
       if ( this.realTimeDataNew[i].DisplayTime.localeCompare("Nu") === 0) {
         this.realTimeDataNew[i].DisplayTime = "Nyss";
-      }      
+      }
       else if ( this.realTimeDataNew[i].DisplayTime.localeCompare("Nyss") === 0) {
         this.realTimeDataNew.splice(i,1);
-      }      
+      }
       else if (/\b\d{1,2}\smin/.test(this.realTimeDataNew[i].DisplayTime)) {
         var time = parseInt(this.realTimeDataNew[i].DisplayTime) - 1;
         if (time === 0) {
@@ -234,8 +262,37 @@ Module.register("MMM-SL",{
     if (notification === "SL_REALTIME_DATA") {
       Log.info("received SL_REALTIME_DATA");
       Log.info(payload);
-      self.processRealTimeInfo(JSON.parse(payload));
+      //self.processRealTimeInfo(JSON.parse(payload));
+      self.processRealTimeInfo(payload);
     }
+  },
+
+  getWalkTime: function(id) {
+    var walkTime = 0;
+    for (var i = 0; i < this.config.siteids.length; i++) {
+      var siteId = this.config.siteids[i];
+      var aSiteId = siteId.id;
+      if ( id === aSiteId && siteId.walkTime !== null && typeof siteId.walkTime !== 'undefined') {
+        walkTime = siteId.walkTime;
+        break;
+      }
+    }
+    //Log.log("walkTime: "+walkTime)
+    return walkTime;
+  },
+
+  getDirection: function(id) {
+    var Direction = 0;
+    for (var i = 0; i < this.config.siteids.length; i++) {
+      var siteId = this.config.siteids[i];
+      var aSiteId = siteId.id;
+      if ( id === aSiteId && siteId.dir !== null && typeof siteId.dir !== 'undefined') {
+        Direction = parseInt(siteId.dir);
+        break;
+      }
+    }
+    //Log.log("Direction: "+Direction)
+    return Direction;
   },
 
   /* processRealTimeInfo(data)
@@ -245,17 +302,37 @@ Module.register("MMM-SL",{
   */
   processRealTimeInfo: function(data) {
     Log.log("Updating departure times");
-    if ( data.StatusCode !== 0) {
+    if ( data.result.StatusCode !== 0) {
       // TODO: Error code handling. i.e. Show error message either on mirror or atleast log.
     } else {
-      this.lastUpdated = data.ResponseData.LatestUpdate;
-      var types = [data.ResponseData.Metros, data.ResponseData.Buses, data.ResponseData.Trains, data.ResponseData.Trams, data.ResponseData.Ships];
+      var ResponseData = data.result.ResponseData;
+      this.lastUpdated = ResponseData.LatestUpdate;
+      var types = [ResponseData.Metros, ResponseData.Buses, ResponseData.Trains, ResponseData.Trams, ResponseData.Ships];
       for (var i = 0; i < types.length; i++) {
         var aType = types[i];
 
         for (var j = 0; j < aType.length; j++) {
           var forecast = aType[j];
+          var walkTime = this.getWalkTime(data.id)
+          var num = parseInt(forecast.DisplayTime.replace(/\D/g,''));
+          Log.log("NuM: "+num);
+          //if ( walkTime > 0 &&  /\b\d+\smin/.forecast.DisplayTime.match(/^\d+$/) && forecast.DisplayTime < walkTime)
+          if ( walkTime > 0 && (num === "" && isNaN(num)) || num < walkTime)
+          {
+            Log.log(forecast.StopAreaName + " " +forecast.DisplayTime +" has less time than configured walkTime "+walkTime +" ignoring");
+            continue;
+          }
+
+          var direction = this.getDirection(data.id)
+          var forecastDirection = parseInt(forecast.JourneyDirection);
+          if ( direction != 0 && direction !== forecastDirection)
+          {
+            Log.log(forecast.StopAreaName + " " +forecast.DisplayTime +" " + forecast.Destination + " wrong direction "+forecastDirection +" ignoring");
+            continue;
+          }
+
           this.realTimeDataNew.push({
+            SiteId: data.id,
             Icon: this.config.iconTable[forecast.TransportMode],
             Destination: forecast.Destination,
             LineNumber: forecast.LineNumber,
@@ -263,6 +340,7 @@ Module.register("MMM-SL",{
             DisplayTime: forecast.DisplayTime,
             ExpectedDateTime: forecast.ExpectedDateTime,
             TimeTabledDateTime: forecast.TimeTabledDateTime,
+            JourneyDirection: forecast.JourneyDirection,
           });
         }
       }

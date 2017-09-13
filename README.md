@@ -1,7 +1,7 @@
 # MMM-SL
 This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can fetch realtime information from SL.se and show departure times for the configured stops.
 
-![Realtime information](/img/screenshot.PNG?raw=true "Realtime information")
+![Realtime information](/img/screenshot.PNG?raw=true 'Realtime information')
 
 ## Installation
 Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/teppos/MMM-SL.git`.
@@ -18,13 +18,13 @@ modules: [
           realtimeappid: 'YOUR_SL_REALTIME_API_KEY',
           timewindow: '10',
           siteids: [LIST OF SITEID OBJECTS HERE],
-          updateNotification: "UPDATE_SL",
-			// See 'Configuration options' for more information.
+          updateNotification: 'UPDATE_SL',
+          debug: true,
+          // See 'Configuration options' for more information.
 		}
 	}
 ]
 ```
-
 
 ## Configuration options
 
@@ -36,6 +36,7 @@ The following properties can be configured:
 | **timewindow**         | The time window which departures should be downloaded. In minutes from now. Min `1`. Max `60`. Default `10` |
 | **siteids**            | List of siteid objects. See explanation below of siteids |
 | **updateNotification** | The notification to listen for. If received then will trigger update of departure times. |
+| **debug** | Show debug information in view, like walking distance, siteid and direction for the different entries |
 
 
 ### API key
@@ -50,13 +51,34 @@ Easiest way to find a siteid for your stop is from sl.se. Search for your stop w
 
 A siteid contains of an `id` and `type` which is an optional list of transportation types.
 
+```javascript
+...
+siteids: [
+	{
+		id: '9001', // Mandatory
+		type: ['bus', 'metro'], // Optional
+		walkTime: 5, // Optional
+		direction: '1' // Optional
+	},
+	...
+]
+...
+```
+
+| Option                 | Description                                         |
+|:-----------------------|:----------------------------------------------------|
+| **id**      | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001`|
+| **type**         | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
+| **walkTime**            | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
+| **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
+
   **Example 1:** show only bus and metro departures from T-centralen
 
 ```javascript
 siteids: [
   {
-    id: "9001",
-    type: ["bus", "metro"]
+    id: '9001',
+    type: ['bus', 'metro'] // Optional
   },
 ]
 ```
@@ -66,11 +88,30 @@ siteids: [
 ```javascript
 siteids: [
   {
-    id: "9001"
+    id: '9001'
   },
 ]
 ```
+### Events
 
-  **Note:** type can be any of `["metro", "bus", "train", "tram", "ship"]`
+This module listens for 2 events:
+* **UPDATE_SL** (default value, see config to change this if necessary). <br/> When this event is received the module will make a new call and refresh its values.
+* **DECREMENT_SL** When this event is received it will count down the existing values (not clock values, i.e. when it has an exact time like 12:15). <br/> This will **not** make a new API call.
 
-  If type is not entered then all transportation types are shown.
+I use another MagicMirror module [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) to send the DECREMENT_SL event every minute.
+You can also send the UPDATE_SL event according to a schedule but The important thing is to remember to not update the values too often cause then it's a high risk that you will exceed your allowed limit on calls / month.
+
+For example send only the update event during the morning when you know you are about to travel to work.
+Example configuration for MMM-ModuleScheduler:
+
+```javascript
+{
+	module: 'MMM-ModuleScheduler',
+	config: {
+		notification_schedule: [
+			{ notification: 'DECREMENT_SL', schedule: '0-59 6-23 * * *', },
+		],
+	},
+},
+```
+See [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) for more information.

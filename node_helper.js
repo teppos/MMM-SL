@@ -10,8 +10,6 @@ module.exports = NodeHelper.create({
   socketNotificationReceived: function(notification, payload) {
     console.log(notification);
 
-    var self = this;
-
     if(notification === "GET_REALTIME_SL"){
 
       this.config = payload;
@@ -19,21 +17,9 @@ module.exports = NodeHelper.create({
 
       for (var i = 0; i < this.config.siteids.length; i++) {
         var siteId = this.config.siteids[i];
-
         var apiUrl = this.config.apiBase + this.config.realTimeEndpoint + this.getParams(siteId);
 
-        request({
-          url: apiUrl,
-          method: "GET"
-        }, function(error, response, body) {
-
-          if (!error && response.statusCode == 200) {
-            // console.log(moment().format() + " 1 " + self.name + ": " + body);
-            self.sendSocketNotification("SL_REALTIME_DATA",body);
-          } else {
-            console.log(self.name + ": " + error);
-          }
-        });
+        this.makeRequest(siteId.id, apiUrl)
       }
     }
     else if (notification === "DECREMENT_SL") {
@@ -43,6 +29,29 @@ module.exports = NodeHelper.create({
       this.sendSocketNotification("SL_DECREMENT_TIMERS");
 
     }
+  },
+
+  makeRequest: function(siteId, apiUrl) {
+    var self = this;
+    request({
+      url: apiUrl,
+      method: "GET"
+    }, function(error, response, body) {
+
+      if (!error && response.statusCode == 200) {
+        var id = siteId;
+        var newBody = JSON.parse(body);
+        var tmp = {
+            id : id,
+            result : newBody
+        };
+
+        console.log(siteId.id+" " + self.name + ": " + tmp);
+        self.sendSocketNotification("SL_REALTIME_DATA",tmp);
+      } else {
+        console.log(self.name + ": " + error);
+      }
+    });
   },
 
   getParams: function(siteId) {
