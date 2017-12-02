@@ -20,7 +20,7 @@ modules: [
           siteids: [LIST OF SITEID OBJECTS HERE],
           updateNotification: 'UPDATE_SL',
           debug: true,
-					convertTimeToMinutes: true,
+		  convertTimeToMinutes: true,
           // See 'Configuration options' for more information.
 		}
 	}
