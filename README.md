@@ -20,6 +20,7 @@ modules: [
           siteids: [LIST OF SITEID OBJECTS HERE],
           updateNotification: 'UPDATE_SL',
           debug: true,
+					convertTimeToMinutes: true,
           // See 'Configuration options' for more information.
 		}
 	}
@@ -37,6 +38,7 @@ The following properties can be configured:
 | **siteids**            | List of siteid objects. See explanation below of siteids |
 | **updateNotification** | The notification to listen for. If received then will trigger update of departure times. |
 | **debug** | Show debug information in view, like walking distance, siteid and direction for the different entries |
+| **convertTimeToMinutes** | Instead of showing a departure time as 22:10, tries to convert it to amount of minutes left, like: 15 min |
 
 
 ### API key
@@ -59,7 +61,7 @@ siteids: [
 		type: ['bus', 'metro'], // Optional
 		walkTime: 5, // Optional
 		direction: 1 // Optional
-		timewindow: 15 // Optional
+		timewindow: 30 // Optional
 	},
 	...
 ]
@@ -72,7 +74,7 @@ siteids: [
 | **type**         | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
 | **walkTime**            | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
 | **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
-| **timewindow** | **Optional** timewindow for this stop. if you want some other timewindow for just this stop. |
+| **timewindow** | **Optional** time window for this stop. if you want some other timewindow for just this stop. |
 
   **Example 1:** show only bus and metro departures from T-centralen
 
