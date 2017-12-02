@@ -286,8 +286,8 @@ Module.register("MMM-SL",{
     for (var i = 0; i < this.config.siteids.length; i++) {
       var siteId = this.config.siteids[i];
       var aSiteId = siteId.id;
-      if ( id === aSiteId && siteId.direction !== null && typeof siteId.direction !== 'undefined') {
-        Direction = siteId.direction;
+      if ( id === aSiteId && siteId.dir !== null && typeof siteId.dir !== 'undefined') {
+        Direction = siteId.dir;
         break;
       }
     }
@@ -322,8 +322,7 @@ Module.register("MMM-SL",{
             Log.log(forecast.StopAreaName + " " +forecast.DisplayTime +" has less time than configured walkTime "+walkTime +" ignoring");
             continue;
           }
-
-          var direction = this.getDirection(data.id)
+          var direction = parseInt(this.getDirection(data.id));
           var forecastDirection = parseInt(forecast.JourneyDirection);
           if ( direction != 0 && direction !== forecastDirection)
           {
