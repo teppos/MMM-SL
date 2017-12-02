@@ -4,7 +4,7 @@ Module.register("MMM-SL",{
     apiBase: "http://api.sl.se/api2/",
     realTimeEndpoint: "realtimedeparturesV4.json",
     timewindow: 10,
-
+    convertTimeToMinutes: false,
     types: ["metro", "bus", "train", "tram", "ship"],
     preventInterval: 30000,
     iconTable: {
@@ -101,37 +101,37 @@ Module.register("MMM-SL",{
       return 0;
     });
     for (var i = 0; i < this.realTimeDataNew.length; i++) {
-      var forecast = this.realTimeDataNew[i];
+      var departure = this.realTimeDataNew[i];
 
       var row = document.createElement("tr");
       table.appendChild(row);
 
-      if ( stopName.localeCompare(forecast.StopAreaName) !== 0) {
+      if ( stopName.localeCompare(departure.StopAreaName) !== 0) {
         var stopNameCell = document.createElement("td");
         var walkTime = "";
         if ( this.config.debug === true ) {
-          var time = this.getWalkTime(forecast.SiteId);
+          var time = this.getWalkTime(departure.SiteId);
           if ( time > 0) walkTime = " ("+time +")"
           stopNameCell.colSpan=3;
         } else {
           stopNameCell.colSpan=4;
         }
-        stopNameCell.innerHTML = forecast.StopAreaName+walkTime;
+        stopNameCell.innerHTML = departure.StopAreaName+walkTime;
 
         stopNameCell.className = "align-right bright stop-area-name";
         row.appendChild(stopNameCell);
 
-        stopName = forecast.StopAreaName;
+        stopName = departure.StopAreaName;
 
         if ( this.config.debug === true ) {
           var siteIdCell = document.createElement("td");
-          siteIdCell.innerHTML = forecast.SiteId;
+          siteIdCell.innerHTML = departure.SiteId;
           siteIdCell.className = "align-right dimmed light xsmall";
           //stopNameCell.colSpan=1;
           row.appendChild(siteIdCell);
 
           // var walkTimeCell = document.createElement("td");
-          // walkTimeCell.innerHTML = this.getWalkTime(forecast.SiteId);
+          // walkTimeCell.innerHTML = this.getWalkTime(departure.SiteId);
           // walkTimeCell.className = "align-right dimmed light xsmall";
           // //stopNameCell.colSpan=1;
           // row.appendChild(walkTimeCell);
@@ -145,27 +145,27 @@ Module.register("MMM-SL",{
       row.appendChild(iconCell);
 
       var icon = document.createElement("span");
-      icon.className = "fa " + forecast.Icon;
+      icon.className = "fa " + departure.Icon;
       iconCell.appendChild(icon);
 
       var lineNumberCell = document.createElement("td");
-      lineNumberCell.innerHTML = "&nbsp;" + forecast.LineNumber;
+      lineNumberCell.innerHTML = "&nbsp;" + departure.LineNumber;
       lineNumberCell.className = "align-right bright line-number";
       row.appendChild(lineNumberCell);
 
       var destinationCell = document.createElement("td");
-      destinationCell.innerHTML = "&nbsp;" + forecast.Destination;
+      destinationCell.innerHTML = "&nbsp;" + departure.Destination;
       destinationCell.className = "align-right destination";
       row.appendChild(destinationCell);
 
       var displayTimeCell = document.createElement("td");
-      displayTimeCell.innerHTML = "&nbsp;" + forecast.DisplayTime;
+      displayTimeCell.innerHTML = "&nbsp;" + departure.DisplayTime;
       displayTimeCell.className = "align-right display-time";
       row.appendChild(displayTimeCell);
 
       if ( this.config.debug === true ) {
         var DirectionCell = document.createElement("td");
-        DirectionCell.innerHTML = "&nbsp;" + forecast.JourneyDirection;
+        DirectionCell.innerHTML = "&nbsp;" + departure.JourneyDirection;
         DirectionCell.className = "align-right dimmed light xsmall display-direction";
         row.appendChild(DirectionCell);
       }
@@ -173,8 +173,8 @@ Module.register("MMM-SL",{
       // 	if (this.config.fadePoint < 0) {
       // 		this.config.fadePoint = 0;
       // 	}
-      // 	var startingPoint = this.forecast.length * this.config.fadePoint;
-      // 	var steps = this.forecast.length - startingPoint;
+      // 	var startingPoint = this.departure.length * this.config.fadePoint;
+      // 	var steps = this.departure.length - startingPoint;
       // 	if (f >= startingPoint) {
       // 		var currentStep = f - startingPoint;
       // 		row.style.opacity = 1 - (1 / steps * currentStep);
@@ -298,13 +298,14 @@ Module.register("MMM-SL",{
   /* processRealTimeInfo(data)
   * Uses the received data to set the various values.
   *
-  * argument data object - Weather information received form openweather.org.
+  * argument data object.
   */
   processRealTimeInfo: function(data) {
     Log.log("Updating departure times");
     if ( data.result.StatusCode !== 0) {
       // TODO: Error code handling. i.e. Show error message either on mirror or atleast log.
     } else {
+      moment.locale(config.language);
       var ResponseData = data.result.ResponseData;
       this.lastUpdated = ResponseData.LatestUpdate;
       var types = [ResponseData.Metros, ResponseData.Buses, ResponseData.Trains, ResponseData.Trams, ResponseData.Ships];
@@ -312,34 +313,48 @@ Module.register("MMM-SL",{
         var aType = types[i];
 
         for (var j = 0; j < aType.length; j++) {
-          var forecast = aType[j];
+          var departure = aType[j];
           var walkTime = this.getWalkTime(data.id)
-          var num = parseInt(forecast.DisplayTime.replace(/\D/g,''));
+          var num = parseInt(departure.DisplayTime.replace(/\D/g,''));
           Log.log("NuM: "+num);
-          //if ( walkTime > 0 &&  /\b\d+\smin/.forecast.DisplayTime.match(/^\d+$/) && forecast.DisplayTime < walkTime)
+          //if ( walkTime > 0 &&  /\b\d+\smin/.departure.DisplayTime.match(/^\d+$/) && departure.DisplayTime < walkTime)
           if ( walkTime > 0 && (num === "" || isNaN(num)) || num < walkTime)
           {
-            Log.log(forecast.StopAreaName + " " +forecast.DisplayTime +" has less time than configured walkTime "+walkTime +" ignoring");
+            Log.log(departure.StopAreaName + " " +departure.DisplayTime +" has less time than configured walkTime "+walkTime +" ignoring");
             continue;
           }
           var direction = parseInt(this.getDirection(data.id));
-          var forecastDirection = parseInt(forecast.JourneyDirection);
-          if ( direction != 0 && direction !== forecastDirection)
+          var departureDirection = parseInt(departure.JourneyDirection);
+          if ( direction != 0 && direction !== departureDirection)
           {
-            Log.log(forecast.StopAreaName + " " +forecast.DisplayTime +" " + forecast.Destination + " wrong direction "+forecastDirection +" ignoring");
+            Log.log(departure.StopAreaName + " " +departure.DisplayTime +" " + departure.Destination + " wrong direction "+departureDirection +" ignoring");
             continue;
+          }
+
+          var timeToDeparture = departure.DisplayTime;
+          if ( this.config.convertTimeToMinutes ) {
+            var timeRegexp = /^\d{1,2}:\d{1,2}$/;
+            var isTime = timeRegexp.test(departure.DisplayTime);
+
+            if ( isTime ) {
+              var m = moment(departure.DisplayTime, "HH:mm");
+              var now = moment();
+              var d = moment.duration(m.diff(now, 'minutes'));
+              Log.log("diff: "+d);
+              timeToDeparture = d +" min";
+            }
           }
 
           this.realTimeDataNew.push({
             SiteId: data.id,
-            Icon: this.config.iconTable[forecast.TransportMode],
-            Destination: forecast.Destination,
-            LineNumber: forecast.LineNumber,
-            StopAreaName: forecast.StopAreaName,
-            DisplayTime: forecast.DisplayTime,
-            ExpectedDateTime: forecast.ExpectedDateTime,
-            TimeTabledDateTime: forecast.TimeTabledDateTime,
-            JourneyDirection: forecast.JourneyDirection,
+            Icon: this.config.iconTable[departure.TransportMode],
+            Destination: departure.Destination,
+            LineNumber: departure.LineNumber,
+            StopAreaName: departure.StopAreaName,
+            DisplayTime: timeToDeparture,
+            ExpectedDateTime: departure.ExpectedDateTime,
+            TimeTabledDateTime: departure.TimeTabledDateTime,
+            JourneyDirection: departure.JourneyDirection,
           });
         }
       }
@@ -349,4 +364,10 @@ Module.register("MMM-SL",{
     this.loaded = true;
     this.updateDom(this.config.animationSpeed);
   },
+
+  getScripts: function() {
+	   return [
+		     'moment.js',
+	   ]
+  }
 });

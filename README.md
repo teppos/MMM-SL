@@ -59,6 +59,7 @@ siteids: [
 		type: ['bus', 'metro'], // Optional
 		walkTime: 5, // Optional
 		direction: 1 // Optional
+		timewindow: 15 // Optional
 	},
 	...
 ]
@@ -71,6 +72,7 @@ siteids: [
 | **type**         | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
 | **walkTime**            | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
 | **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
+| **timewindow** | **Optional** timewindow for this stop. if you want some other timewindow for just this stop. |
 
   **Example 1:** show only bus and metro departures from T-centralen
 
