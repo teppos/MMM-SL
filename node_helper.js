@@ -72,11 +72,13 @@ module.exports = NodeHelper.create({
     }
 
     /*
-    * Submit a specific number of days to forecast, between 1 to 16 days.
-    * The OpenWeatherMap API properly handles values outside of the 1 - 16 range and returns 7 days by default.
-    * This is simply being pedantic and doing it ourselves.
+    * Timewindow between 1 - 60 minutes
     */
-    params += "&timewindow=" + (((this.config.timewindow < 1) || (this.config.timewindow > 60)) ? 15 : this.config.timewindow);
+    if( siteId.timewindow !== undefined && siteId.timewindow > 0 && siteId.timewindow < 60) {
+      params += "&timewindow=" + siteId.timewindow;
+    } else {
+      params += "&timewindow=" + (((this.config.timewindow < 1) || (this.config.timewindow > 60)) ? 15 : this.config.timewindow);
+    }
     console.log("params: "+params);
     return params;
   },
