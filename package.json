@@ -10,13 +10,21 @@
     "type": "git",
     "url": "git+https://github.com/teppos/MMM-SL.git"
   },
-	"author": "Teppo Siirilä",
-	"license": "MIT",
+  "author": "Teppo Siirilä",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/teppos/MMM-SL/issues"
   },
   "homepage": "https://github.com/teppos/MMM-SL#readme",
   "dependencies": {
+    "moment": "latest",
     "request": "^2.79.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.3",
+    "grunt-cli": "^1.2.0",
+    "grunt-eslint": "^21.0.0",
+    "grunt-jsonlint": "^1.1.0",
+    "grunt-markdownlint": "^2.0.2"
   }
 }

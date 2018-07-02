@@ -1,7 +1,13 @@
 # MMM-SL
 This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can fetch realtime information from SL.se and show departure times for the configured stops.
 
-![Realtime information](/img/screenshot.PNG?raw=true 'Realtime information')
+## Screenshots
+Time sorting:
+![Debug output time sort](/img/debug_time_sort?raw=true 'debug time sort')
+
+Direction time sort
+![Debug output directionTime sort](/img/debug_directiontime_sort.png?raw=true 'debug output direction sort')
+
 
 ## Installation
 Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/teppos/MMM-SL.git`.
@@ -12,18 +18,22 @@ Navigate into your MagicMirror's `modules` folder and execute `git clone https:/
 To use this module, add it to the modules array in the `config/config.js` file:
 ```javascript
 modules: [
-	{
-		module: 'MMM-SL',
-		config: {
+  {
+    module: 'MMM-SL',
+    config: {
+          debug: true,
           realtimeappid: 'YOUR_SL_REALTIME_API_KEY',
           timewindow: '10',
-          siteids: [LIST OF SITEID OBJECTS HERE],
           updateNotification: 'UPDATE_SL',
-          debug: true,
-		  convertTimeToMinutes: true,
+          sorting: 'time',
+          convertTimeToMinutes: true,
+          showRecentlyPassed: false,
+          showLastUpdatedAlways: false,
+          lastUpdatedInTitle: false,
+          siteids: [LIST OF SITEID OBJECTS HERE],
           // See 'Configuration options' for more information.
-		}
-	}
+    }
+  }
 ]
 ```
 
@@ -39,6 +49,11 @@ The following properties can be configured:
 | **updateNotification** | The notification to listen for. If received then will trigger update of departure times. |
 | **debug** | Show debug information in view, like walking distance, siteid and direction for the different entries |
 | **convertTimeToMinutes** | Instead of showing a departure time as 22:10, tries to convert it to amount of minutes left, like: 15 min |
+| **showRecentlyPassed** | If you don't want to see those departures which just left, set this to false |
+| **sorting** | possible values: **time**, **directionTime**. <br/> **time** sorts after derparture time (ExpectedDateTime field from API.)<br/> **directionTime** sorts first after direction and then time. <br/> See screenshots. |
+| **showLastUpdatedAlways** | set to true if you always want to display lastUpdated time |
+| **lastUpdatedInTitle** | set to true if you want to display lastUpdated time in the title, otherwise it will be shown at the top |
+
 
 
 ### API key
@@ -56,25 +71,27 @@ A siteid contains of an `id` and `type` which is an optional list of transportat
 ```javascript
 ...
 siteids: [
-	{
-		id: '9001', // Mandatory
-		type: ['bus', 'metro'], // Optional
-		walkTime: 5, // Optional
-		direction: 1 // Optional
-		timewindow: 30 // Optional
-	},
-	...
+  {
+    id: '9001', // Mandatory
+    type: ['bus', 'metro'], // Optional
+    walkTime: 5, // Optional
+    direction: 1, // Optional
+    timewindow: 30, // Optional
+    displayCount: 5 // Optional
+  },
+  ...
 ]
 ...
 ```
 
 | Option                 | Description                                         |
 |:-----------------------|:----------------------------------------------------|
-| **id**      | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001`|
-| **type**         | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
-| **walkTime**            | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
+| **id** | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001`|
+| **type** | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
+| **walkTime** | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
 | **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
 | **timewindow** | **Optional** time window for this stop. if you want some other timewindow for just this stop. |
+| **displayCount** | **Optional** How many entries is shown for this stop. <br/>If using **directionTime** sort, this is how many entries is shown for each direction. |
 
   **Example 1:** show only bus and metro departures from T-centralen
 
@@ -110,12 +127,12 @@ Example configuration for MMM-ModuleScheduler:
 
 ```javascript
 {
-	module: 'MMM-ModuleScheduler',
-	config: {
-		notification_schedule: [
-			{ notification: 'DECREMENT_SL', schedule: '0-59 6-23 * * *', },
-		],
-	},
+  module: 'MMM-ModuleScheduler',
+  config: {
+    notification_schedule: [
+      { notification: 'DECREMENT_SL', schedule: '0-59 6-23 * * *', },
+    ],
+  },
 },
 ```
 See [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) for more information.

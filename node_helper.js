@@ -42,14 +42,13 @@ module.exports = NodeHelper.create({
         var id = siteId;
         var newBody = JSON.parse(body);
         var tmp = {
-            id : id,
-            result : newBody
+          id : id,
+          result : newBody
         };
-
-        console.log(siteId.id+" " + self.name + ": " + tmp);
+        console.log(id+" " + self.name + ": ",tmp);
         self.sendSocketNotification("SL_REALTIME_DATA",tmp);
       } else {
-        console.log(self.name + ": " + error);
+        console.log(self.name + ": ",error);
       }
     });
   },
