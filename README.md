@@ -3,7 +3,7 @@ This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror)
 
 ## Screenshots
 Time sorting:
-![Debug output time sort](/img/debug_time_sort?raw=true 'debug time sort')
+![Debug output time sort](/img/debug_time_sort.png?raw=true 'debug time sort')
 
 Direction time sort
 ![Debug output directionTime sort](/img/debug_directiontime_sort.png?raw=true 'debug output direction sort')
