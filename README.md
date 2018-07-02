@@ -19,19 +19,19 @@ To use this module, add it to the modules array in the `config/config.js` file:
 ```javascript
 modules: [
   {
-    module: 'MMM-SL',
+    module: "MMM-SL",
     config: {
           debug: true,
-          realtimeappid: 'YOUR_SL_REALTIME_API_KEY',
-          timewindow: '10',
-          updateNotification: 'UPDATE_SL',
-          sorting: 'time',
+          realtimeappid: "YOUR_TRAFIKLAB_REALTIME_API_KEY",
+          timewindow: "10",
+          updateNotification: "UPDATE_SL",
+          sorting: "time",
           convertTimeToMinutes: true,
           showRecentlyPassed: false,
           showLastUpdatedAlways: false,
           lastUpdatedInTitle: false,
           siteids: [LIST OF SITEID OBJECTS HERE],
-          // See 'Configuration options' for more information.
+          // See "Configuration options" for more information.
     }
   }
 ]
@@ -72,8 +72,8 @@ A siteid contains of an `id` and `type` which is an optional list of transportat
 ...
 siteids: [
   {
-    id: '9001', // Mandatory
-    type: ['bus', 'metro'], // Optional
+    id: "9001", // Mandatory
+    type: ["bus", "metro"], // Optional
     walkTime: 5, // Optional
     direction: 1, // Optional
     timewindow: 30, // Optional
@@ -87,7 +87,7 @@ siteids: [
 | Option                 | Description                                         |
 |:-----------------------|:----------------------------------------------------|
 | **id** | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001`|
-| **type** | **Optional** List of transportation. <br/> Can be any of `['metro', 'bus', 'train', 'tram', 'ship']`. <br/> If type is not entered then all transportation types are shown. |
+| **type** | **Optional** List of transportation. <br/> Can be any of `["metro", "bus", "train", "tram", "ship"]`. <br/> If type is not entered then all transportation types are shown. |
 | **walkTime** | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
 | **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
 | **timewindow** | **Optional** time window for this stop. if you want some other timewindow for just this stop. |
@@ -98,8 +98,8 @@ siteids: [
 ```javascript
 siteids: [
   {
-    id: '9001',
-    type: ['bus', 'metro'] // Optional
+    id: "9001",
+    type: ["bus", "metro"] // Optional
   },
 ]
 ```
@@ -109,7 +109,7 @@ siteids: [
 ```javascript
 siteids: [
   {
-    id: '9001'
+    id: "9001"
   },
 ]
 ```
@@ -127,12 +127,41 @@ Example configuration for MMM-ModuleScheduler:
 
 ```javascript
 {
-  module: 'MMM-ModuleScheduler',
+  module: "MMM-ModuleScheduler",
   config: {
     notification_schedule: [
-      { notification: 'DECREMENT_SL', schedule: '0-59 6-23 * * *', },
+      { notification: "DECREMENT_SL", schedule: "0-59 6-23 * * *", },
     ],
   },
 },
 ```
 See [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) for more information.
+
+### Example configuration
+
+```javascript
+{
+  module: "MMM-SL",
+  header: "Departure times",
+  position: "top_right",
+  config: {
+    debug: false,
+    realtimeappid: "YOUR_TRAFIKLAB_REALTIME_API_KEY",
+    timewindow: "10",
+    sorting: "directionTime",
+    updateNotification: "UPDATE_SL",
+    convertTimeToMinutes: true,
+    showRecentlyPassed: false,
+    showLastUpdatedAlways: true,
+    lastUpdatedInTitle:true,
+    siteids: [
+      {
+      	id: "9001", // T-Centralen
+      	type: ["metro"],
+      	timewindow: 30,
+      	displayCount: 5,
+      },
+    ],
+  }
+},
+```
