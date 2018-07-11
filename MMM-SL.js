@@ -2,12 +2,18 @@
 Module.register("MMM-SL",{
   // Default module config.
   defaults: {
+    debug: false,
     header: "MMM-SL",
     apiBase: "http://api.sl.se/api2/",
     realTimeEndpoint: "realtimedeparturesV4.json",
     timewindow: 10,
+    sorting: "time",
+    updateNotification: "UPDATE_SL",
     convertTimeToMinutes: false,
     showRecentlyPassed: true,
+    showLastUpdatedAlways: false,
+    lastUpdatedInTitle: false,
+    useExpectedTime: false,
     types: ["metro", "bus", "train", "tram", "ship"],
     preventInterval: 30000,
     iconTable: {
@@ -59,8 +65,8 @@ Module.register("MMM-SL",{
 
   // Override dom generator.
   getDom: function() {
-    Log.log("lastUpdated: "+this.lastUpdated);
-    Log.log("testData: ",this.testData);
+    // Log.log("lastUpdated: "+this.lastUpdated);
+    // Log.log("testData: ",this.testData);
     let wrapper = document.createElement("div");
 
     if (this.config.realtimeappid === "" || this.config.realtimeappid === "YOUR_SL_REALTIME_API_KEY") {
@@ -155,8 +161,6 @@ Module.register("MMM-SL",{
         }
       }
     }
-
-    Log.log("table: "+table);
     return table;
   },
 
@@ -307,8 +311,7 @@ Module.register("MMM-SL",{
       Log.log(this.name + " further updates are prevented");
     }
     else if (notification === "DECREMENT_SL") {
-      Log.info("received DECREMENT_SL");
-      Log.info(payload);
+      Log.info("received DECREMENT_SL. Payload: ",payload);
       this.decrementTimers(payload);
     }
   },
@@ -362,7 +365,7 @@ Module.register("MMM-SL",{
   },
 
   getRealTime: function() {
-    Log.info("mmm-sl: Getting times.");
+    Log.info("mmm-sl: Getting departure times.");
     this.resetData();
     this.sendSocketNotification("GET_REALTIME_SL",this.config);
   },
@@ -371,9 +374,7 @@ Module.register("MMM-SL",{
     let self = this;
     Log.info("Departure times received " + notification);
     if (notification === "SL_REALTIME_DATA") {
-      Log.info("received SL_REALTIME_DATA");
-      Log.info(payload);
-      //self.processRealTimeInfo(JSON.parse(payload));
+      Log.info("received SL_REALTIME_DATA. PayLoad: ", payload);
       self.processRealTimeInfo(payload);
     }
   },
@@ -427,9 +428,10 @@ Module.register("MMM-SL",{
   */
   processRealTimeInfo: function(data) {
     Log.log("Updating departure times");
-    if ( data.result.StatusCode !== 0) {
-      // TODO: Error code handling. i.e. Show error message either on mirror or atleast log.
-    } else {
+    // if ( data.result.StatusCode !== 0) {
+    //   // TODO: Error code handling. i.e. Show error message either on mirror or atleast log.
+    //   Log.log("data.result.StatusCode: ", data.result.StatusCode);
+    // } else {
       let ResponseData = data.result.ResponseData;
       this.lastUpdated = ResponseData.LatestUpdate;
       let types = [ResponseData.Metros, ResponseData.Buses, ResponseData.Trains, ResponseData.Trams, ResponseData.Ships];
@@ -485,7 +487,7 @@ Module.register("MMM-SL",{
           this.testData[`${departure.StopAreaName}`].departures.push(object);
         }
       }
-    }
+    // }
 
     this.show(this.config.animationSpeed, {lockString:this.identifier});
     this.loaded = true;
