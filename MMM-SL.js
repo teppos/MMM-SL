@@ -310,6 +310,7 @@ Module.register("MMM-SL",{
       Log.info("received DECREMENT_SL. Payload: ",payload);
       this.decrementTimers(payload);
     } else if ( notification === "USER_PRESENCE") {
+      Log.info("MMM-SL received USER_PRESENCE. Payload: ",payload);
       this.updateTest();
     }
   },
