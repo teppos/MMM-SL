@@ -304,16 +304,24 @@ Module.register("MMM-SL",{
   },
 
   notificationReceived: function(notification, payload, sender) {
-    if ( notification.localeCompare(this.config.updateNotification) === 0 && this.ableToUpdate) {
+    if ( notification.localeCompare(this.config.updateNotification) === 0 ) {
+      this.updateTest();      
+    } else if (notification === "DECREMENT_SL") {
+      Log.info("received DECREMENT_SL. Payload: ",payload);
+      this.decrementTimers(payload);
+    } else if ( notification === "USER_PRESENCE") {
+      this.updateTest();
+    }
+  },
+
+  updateTest: function() {
+    if ( this.ableToUpdate ) {
       this.ableToUpdate=false;
       this.getRealTime();
       this.preventUpdate();
-      Log.log(this.name + " further updates are prevented");
+      Log.log(this.name + " further updates are prevented for "+ this.config.preventInterval +"ms");
     }
-    else if (notification === "DECREMENT_SL") {
-      Log.info("received DECREMENT_SL. Payload: ",payload);
-      this.decrementTimers(payload);
-    }
+
   },
 
   decrementTimers: function() {
