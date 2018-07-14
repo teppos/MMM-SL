@@ -14,6 +14,7 @@ Module.register("MMM-SL",{
     showLastUpdatedAlways: false,
     lastUpdatedInTitle: false,
     useExpectedTime: false,
+    pirEventCheck: true,
     types: ["metro", "bus", "train", "tram", "ship"],
     preventInterval: 30000,
     iconTable: {
@@ -311,7 +312,9 @@ Module.register("MMM-SL",{
       this.decrementTimers(payload);
     } else if ( notification === "USER_PRESENCE") {
       Log.info("MMM-SL received USER_PRESENCE. Payload: ",payload);
-      this.updateTest();
+      if ( this.config.pirEventCheck === true) {
+        this.updateTest();
+      }
     }
   },
 
