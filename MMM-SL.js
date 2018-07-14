@@ -323,7 +323,7 @@ Module.register("MMM-SL",{
       this.ableToUpdate=false;
       this.getRealTime();
       this.preventUpdate();
-      Log.log(this.name + " further updates are prevented for "+ this.config.preventInterval +"ms");
+      Log.log(this.name + " further updates are prevented for "+ this.config.preventInterval +"s");
     }
 
   },
@@ -364,9 +364,9 @@ Module.register("MMM-SL",{
   },
 
   preventUpdate: function(delay) {
-    let nextLoad = this.config.preventInterval;
+    let nextLoad = this.config.preventInterval * 1000;
     if (typeof delay !== "undefined" && delay >= 0) {
-      nextLoad = delay;
+      nextLoad = delay * 1000;
     }
     let self = this;
     clearTimeout(this.updateTimer);

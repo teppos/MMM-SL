@@ -30,6 +30,8 @@ modules: [
           showRecentlyPassed: false,
           showLastUpdatedAlways: false,
           lastUpdatedInTitle: false,
+          pirEventCheck: true,
+          preventInterval: 30,
           siteids: [LIST OF SITEID OBJECTS HERE],
           // See "Configuration options" for more information.
     }
@@ -53,8 +55,8 @@ The following properties can be configured:
 | **sorting** | possible values: **time**, **directionTime**. <br/> **time** sorts after derparture time (ExpectedDateTime field from API.)<br/> **directionTime** sorts first after direction and then time. <br/> See screenshots. |
 | **showLastUpdatedAlways** | set to true if you always want to display lastUpdated time |
 | **lastUpdatedInTitle** | set to true if you want to display lastUpdated time in the title, otherwise it will be shown at the top |
-
-
+| **pirEventCheck** | if `true` then module will update departureTime when get a `USER_PRESENCE` event which is sent eg. from [MMM-PIR-Sensor](https://github.com/paviro/MMM-PIR-Sensor) module. Will not update again for until `preventInterval` seconds has passed. Default: true |
+| **preventInterval** | Number of seconds that have to pass after an update so that multiple update requests will not be sent. Default: 30 |
 
 ### API key
 
@@ -115,11 +117,14 @@ siteids: [
 ```
 ### Events
 
-This module listens for 2 events:
+This module listens for 3 events:
 * **UPDATE_SL** (default value, see config to change this if necessary). <br/> When this event is received the module will make a new call and refresh its values.
 * **DECREMENT_SL** When this event is received it will count down the existing values (not clock values, i.e. when it has an exact time like 12:15). <br/> This will **not** make a new API call.
+* **USER_PRESENCE** When this event is received (eg. from [MMM-PIR-Sensor](https://github.com/paviro/MMM-PIR-Sensor) module) it will update departure times.
 
-I use another MagicMirror module [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) to send the DECREMENT_SL event every minute.
+Now I mainly use the PIR-sensor to send events when I'm in front of the screen/mirror which will then update the departure times automatically.
+
+Earlier I used another MagicMirror module [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) to send the DECREMENT_SL event every minute.
 You can also send the UPDATE_SL event according to a schedule but The important thing is to remember to not update the values too often cause then it's a high risk that you will exceed your allowed limit on calls / month.
 
 For example send only the update event during the morning when you know you are about to travel to work.
