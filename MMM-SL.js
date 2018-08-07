@@ -16,7 +16,7 @@ Module.register("MMM-SL",{
     useExpectedTime: false,
     pirEventCheck: true,
     types: ["metro", "bus", "train", "tram", "ship"],
-    preventInterval: 30000,
+    preventInterval: 30,
     iconTable: {
       "METRO": "fa-subway",
       "TRAM": "fa-subway",
@@ -324,6 +324,11 @@ Module.register("MMM-SL",{
       this.getRealTime();
       this.preventUpdate();
       Log.log(this.name + " further updates are prevented for "+ this.config.preventInterval +"s");
+    } else {
+      let now = moment();
+      let nextUpdate = moment(this.updateTime).add(this.config.preventInterval ,"seconds");
+      let d = moment.duration(nextUpdate.diff(now, "seconds"));
+      Log.log(this.name + " next update possible in " +d +" seconds");
     }
 
   },
@@ -364,16 +369,19 @@ Module.register("MMM-SL",{
   },
 
   preventUpdate: function(delay) {
+
     let nextLoad = this.config.preventInterval * 1000;
     if (typeof delay !== "undefined" && delay >= 0) {
       nextLoad = delay * 1000;
     }
+    console.log("NextLoad in ms: ", nextLoad);
     let self = this;
     clearTimeout(this.updateTimer);
     this.updateTimer = setTimeout(function() {
       self.ableToUpdate=true;
       Log.log(self.name + " is able to update again");
     }, nextLoad);
+    this.updateTime  = moment();
   },
 
   getRealTime: function() {
