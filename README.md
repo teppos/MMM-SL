@@ -5,11 +5,11 @@ This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror)
 
 **Time sorting:**
 
-![Debug output time sort](/img/debug_time_sort.png?raw=true 'debug time sort')
+> ![Debug output time sort](/img/debug_time_sort.png?raw=true 'debug time sort')
 
-**Direction time sort**
+**Direction time sort:**
 
-![Debug output directionTime sort](/img/debug_directiontime_sort.png?raw=true 'debug output direction sort')
+> ![Debug output directionTime sort](/img/debug_directiontime_sort.png?raw=true 'debug output direction sort')
 
 
 ## Installation
@@ -35,7 +35,7 @@ modules: [
           lastUpdatedInTitle: false,
           pirEventCheck: true,
           preventInterval: 30,
-          siteids: [[List of SiteId-objects](#siteid-list)],
+          siteids: [LIST OF SITEID OBJECTS HERE],
           // See "Configuration options" for more information.
     }
   }
@@ -60,6 +60,7 @@ The following properties can be configured:
 | **lastUpdatedInTitle** | set to true if you want to display lastUpdated time in the title, otherwise it will be shown at the top |
 | **pirEventCheck** | if `true` then module will update departureTime when get a `USER_PRESENCE` event which is sent eg. from [MMM-PIR-Sensor](https://github.com/paviro/MMM-PIR-Sensor) module. Will not update again for until `preventInterval` seconds has passed. Default: true |
 | **preventInterval** | Number of seconds that have to pass after an update so that multiple update requests will not be sent. Default: 30 |
+| **siteids** | See [Siteid List](#siteid-list) |
 
 ### API key
 
