@@ -1,4 +1,5 @@
 /* global Log, Module, moment */
+
 Module.register("MMM-SL",{
   // Default module config.
   defaults: {
@@ -66,7 +67,7 @@ Module.register("MMM-SL",{
 
   // Override dom generator.
   getDom: function() {
-    // Log.log("lastUpdated: "+this.lastUpdated);
+    // console.log("lastUpdated: "+this.lastUpdated);
     // Log.log("testData: ",this.testData);
     let wrapper = document.createElement("div");
 
@@ -94,6 +95,7 @@ Module.register("MMM-SL",{
       lastUpdatedRow.appendChild(lastUpdatedCell);
       table.appendChild(lastUpdatedRow);
     }
+
     let notFirst = false;
     for(let key in this.testData){
       let departureArray = this.testData[key];
@@ -136,14 +138,13 @@ Module.register("MMM-SL",{
       let displayCount = 0;
       let displayCountMax = this.getDisplayCount(departureArray.SiteId);
 
-
       //departures for current stopName
       for (let i = 0; i < departureArray.departures.length; i++) {
         let departure = departureArray.departures[i];
 
-        if ( direction !== -1 && direction !== departure.JourneyDirection &&  this.config.sorting === "directionTime" ) {
+        if ( direction !== -1 && direction !== departure.Direction &&  this.config.sorting === "directionTime" ) {
           displayCount=0;
-          direction=departure.JourneyDirection;
+          direction=departure.Direction;
           let emptyRow = this.createEmptyRow();
           table.appendChild(emptyRow);
         }
@@ -151,12 +152,12 @@ Module.register("MMM-SL",{
         displayCount++;
         if ( displayCountMax > 0) {
           if ( displayCount <= displayCountMax) {
-            if ( direction == -1) { direction=departure.JourneyDirection; }
+            if ( direction == -1) { direction=departure.Direction; }
             let departureRow = this.createDepartureRow(departure);
             table.appendChild(departureRow);
           }
         } else {
-          if ( direction == -1) { direction=departure.JourneyDirection; }
+          if ( direction == -1) { direction=departure.Direction; }
           let departureRow = this.createDepartureRow(departure);
           table.appendChild(departureRow);
         }
@@ -214,7 +215,7 @@ Module.register("MMM-SL",{
 
     if ( this.config.debug === true ) {
       let DirectionCell = document.createElement("td");
-      DirectionCell.innerHTML = "&nbsp;" + departure.JourneyDirection;
+      DirectionCell.innerHTML = "&nbsp;" + departure.JourneyDirection + "&nbsp;" + departure.Direction;
       DirectionCell.className = "align-right dimmed light xsmall display-direction";
       row.appendChild(DirectionCell);
     }
@@ -283,8 +284,8 @@ Module.register("MMM-SL",{
     if ( b.StopAreaName > a.StopAreaName) { return -1; }
 
     // samma hållplats -> kolla på destinationen
-    if ( a.JourneyDirection > b.JourneyDirection) { return 1; }
-    if ( b.JourneyDirection > a.JourneyDirection  ) { return -1; }
+    if ( a.Direction > b.Direction) { return 1; }
+    if ( b.Direction > a.Direction  ) { return -1; }
 
     let aDate =  a.ExpectedDateTime === undefined || a.ExpectedDateTime === null ? "" : a.ExpectedDateTime.valueOf( a.ExpectedDateTime );
     let bDate =  b.ExpectedDateTime === undefined || b.ExpectedDateTime === null ? "" : b.ExpectedDateTime.valueOf( b.ExpectedDateTime );
@@ -306,7 +307,7 @@ Module.register("MMM-SL",{
 
   notificationReceived: function(notification, payload, sender) {
     if ( notification.localeCompare(this.config.updateNotification) === 0 ) {
-      this.updateTest();      
+      this.updateTest();
     } else if (notification === "DECREMENT_SL") {
       Log.info("received DECREMENT_SL. Payload: ",payload);
       this.decrementTimers(payload);
@@ -413,18 +414,34 @@ Module.register("MMM-SL",{
     return walkTime;
   },
 
-  getDirection: function(id) {
-    let Direction = 0;
+  getDirection: function(id, lineNumber) {
+    let retObj = {
+      direction: 0,
+      reverse: false
+    };
+
     for (let i = 0; i < this.config.siteids.length; i++) {
       let siteId = this.config.siteids[i];
+
+      if(siteId.switchDisplayDirection) {
+        let directionReverse = typeof siteId.switchDisplayDirection === "Array" ? siteId.switchDisplayDirection : [siteId.switchDisplayDirection];
+        for (let j = directionReverse.length - 1; j >= 0; j--) {
+          if(directionReverse[j].toString().toLowerCase() === lineNumber.toString().toLowerCase()) {
+            retObj.reverse = true;
+            break;
+          }
+        }
+      }
+
       let aSiteId = siteId.id;
       if ( id === aSiteId && siteId.direction !== null && typeof siteId.direction !== "undefined") {
-        Direction = siteId.direction;
+        let directionInt = parseInt(siteId.direction);
+        retObj.direction = directionInt;
         break;
       }
     }
 
-    return Direction;
+    return retObj;
   },
 
   getDisplayCount: function(id) {
@@ -467,10 +484,16 @@ Module.register("MMM-SL",{
             Log.log(departure.StopAreaName + " " +departure.DisplayTime +" has less time than configured walkTime "+walkTime +" ignoring");
             continue;
           }
-          let direction = parseInt(this.getDirection(data.id));
+
+          let directionObject = this.getDirection(data.id, departure.LineNumber);
           let departureDirection = parseInt(departure.JourneyDirection);
-          if ( direction != 0 && direction !== departureDirection) {
-            Log.log(departure.StopAreaName + " " +departure.DisplayTime +" " + departure.Destination + " wrong direction "+departureDirection +" ignoring");
+
+          if(directionObject.reverse && departureDirection > 0) {
+            departureDirection = (3- departureDirection);
+          }
+
+          if ( directionObject && directionObject.direction != 0 && directionObject.direction !== departureDirection) {
+            Log.log(departure.StopAreaName + " " +departure.DisplayTime +" " + departure.Destination + " wrong direction "+ departure.JourneyDirection +" ignoring. (Calculated direction: '" + departureDirection + "')");
             continue;
           }
 
@@ -496,6 +519,7 @@ Module.register("MMM-SL",{
             ExpectedDateTime: departure.ExpectedDateTime,
             TimeTabledDateTime: departure.TimeTabledDateTime,
             JourneyDirection: departure.JourneyDirection,
+            Direction: departureDirection,
           };
           if ( this.testData[`${departure.StopAreaName}`] === undefined ) {
             this.testData[`${departure.StopAreaName}`] = {
