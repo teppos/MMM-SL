@@ -2,10 +2,13 @@
 This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can fetch realtime information from SL.se and show departure times for the configured stops.
 
 ## Screenshots
-Time sorting:
+
+**Time sorting:**
+
 ![Debug output time sort](/img/debug_time_sort.png?raw=true 'debug time sort')
 
-Direction time sort
+**Direction time sort**
+
 ![Debug output directionTime sort](/img/debug_directiontime_sort.png?raw=true 'debug output direction sort')
 
 
@@ -32,7 +35,7 @@ modules: [
           lastUpdatedInTitle: false,
           pirEventCheck: true,
           preventInterval: 30,
-          siteids: [LIST OF SITEID OBJECTS HERE],
+          siteids: [[List of SiteId-objects](#siteid-list)],
           // See "Configuration options" for more information.
     }
   }
@@ -79,7 +82,8 @@ siteids: [
     walkTime: 5, // Optional
     direction: 1, // Optional
     timewindow: 30, // Optional
-    displayCount: 5 // Optional
+    displayCount: 5, // Optional
+    switchDisplayDirection: ["4"] //Optional
   },
   ...
 ]
@@ -88,12 +92,13 @@ siteids: [
 
 | Option                 | Description                                         |
 |:-----------------------|:----------------------------------------------------|
-| **id** | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001`|
+| **id** | **Mandatory** siteid for the stop. <br/> Easiest way to find a siteid for your stop is from [sl.se](https://sl.se). Search for your stop with 'Next stop'-feature. The siteId is the last number in the URL: ex T-centralen = `9001` |
 | **type** | **Optional** List of transportation. <br/> Can be any of `["metro", "bus", "train", "tram", "ship"]`. <br/> If type is not entered then all transportation types are shown. |
 | **walkTime** | **Optional**  Walk time to stop in minutes. Filters out the entries which are less time than this |
 | **direction** | **Optional** Direction, if only want to show entries in one direction. I.e. show only metro times in one direction. <br/> Use *debug* mode (see above) to see which direction îs which. |
 | **timewindow** | **Optional** time window for this stop. if you want some other timewindow for just this stop. |
 | **displayCount** | **Optional** How many entries is shown for this stop. <br/>If using **directionTime** sort, this is how many entries is shown for each direction. |
+| **switchDisplayDirection** | **Optional** List of line numbers where you want to switch the direction on.<br/> If using **directionTime** sort, this makes transport line on correct side when the reported direction from SL isn't the same on all lines. |
 
   **Example 1:** show only bus and metro departures from T-centralen
 
@@ -115,12 +120,26 @@ siteids: [
   },
 ]
 ```
+
+  **Example 3:** show all departures from T-centralen, but change one direction
+
+```javascript
+siteids: [
+  {
+    id: "9001",
+    switchDisplayDirection: ["45"]
+  },
+]
+```
 ### Events
 
 This module listens for 3 events:
-* **UPDATE_SL** (default value, see config to change this if necessary). <br/> When this event is received the module will make a new call and refresh its values.
-* **DECREMENT_SL** When this event is received it will count down the existing values (not clock values, i.e. when it has an exact time like 12:15). <br/> This will **not** make a new API call.
-* **USER_PRESENCE** When this event is received (eg. from [MMM-PIR-Sensor](https://github.com/paviro/MMM-PIR-Sensor) module) it will update departure times.
+
+| Event                 | Description                                         |
+|:-----------------------|:----------------------------------------------------|
+| **UPDATE_SL** | (default value, see config to change this if necessary). <br/> When this event is received the module will make a new call and refresh its values. |
+| **DECREMENT_SL** | When this event is received it will count down the existing values (not clock values, i.e. when it has an exact time like 12:15). <br/> This will **not**  make a new API call. |
+| **USER_PRESENCE** | When this event is received (eg. from [MMM-PIR-Sensor](https://github.com/paviro/MMM-PIR-Sensor) module) it will update departure times. |
 
 Now I mainly use the PIR-sensor to send events when I'm in front of the screen/mirror which will then update the departure times automatically.
 
@@ -128,7 +147,7 @@ Earlier I used another MagicMirror module [MMM-ModuleScheduler](https://github.c
 You can also send the UPDATE_SL event according to a schedule but The important thing is to remember to not update the values too often cause then it's a high risk that you will exceed your allowed limit on calls / month.
 
 For example send only the update event during the morning when you know you are about to travel to work.
-Example configuration for MMM-ModuleScheduler:
+Example configuration for [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler):
 
 ```javascript
 {
@@ -140,7 +159,9 @@ Example configuration for MMM-ModuleScheduler:
   },
 },
 ```
-See [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) for more information.
+**Notes**
+
+* See [MMM-ModuleScheduler](https://github.com/ianperrin/MMM-ModuleScheduler) for more information.
 
 ### Example configuration
 
