@@ -162,11 +162,11 @@ Module.register("MMM-SL", {
   },
 
   sortDepartureArray: function(arrayToSort) {
-    if (this.config.sorting === "time") {
-      arrayToSort.sort(this.expectedTimeSort);
-    } else if (this.config.sorting === "directionTime") {
+    if (this.config.sorting === "directionTime") {
       arrayToSort.sort(this.expectedTimeDirectionSort);
     }
+    // Time sort is the default sorting method
+    arrayToSort.sort(this.expectedTimeSort);
   },
 
   createEmptyRow: function() {
