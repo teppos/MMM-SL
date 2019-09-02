@@ -2,7 +2,8 @@
 	"extends": "eslint:recommended",
 	"globals": {
 		"Module": false,
-		"Log": false
+		"Log": false,
+		"moment": false
 	},
 	"rules": {
 		"indent": ["error", 2],

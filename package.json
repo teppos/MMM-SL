@@ -18,13 +18,13 @@
   "homepage": "https://github.com/teppos/MMM-SL#readme",
   "dependencies": {
     "moment": "latest",
-    "request": "^2.79.0"
+    "request": "^2.88.0"
   },
   "devDependencies": {
-    "grunt": "^1.0.3",
-    "grunt-cli": "^1.2.0",
-    "grunt-eslint": "^21.0.0",
-    "grunt-jsonlint": "^1.1.0",
-    "grunt-markdownlint": "^2.0.2"
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "grunt-eslint": "latest",
+    "grunt-jsonlint": "latest",
+    "grunt-markdownlint": "latest"
   }
 }

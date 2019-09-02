@@ -16,7 +16,7 @@ module.exports = NodeHelper.create({
         var siteId = this.config.siteids[i];
         var apiUrl = this.config.apiBase + this.config.realTimeEndpoint + this.getParams(siteId);
 
-        this.makeRequest(siteId.id, apiUrl)
+        this.makeRequest(siteId.id, apiUrl);
       }
     } else if (notification === "DECREMENT_SL") {
       console.log("Decrementing SL time until departure");

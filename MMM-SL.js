@@ -1,4 +1,3 @@
-/* global Log, Module, moment */
 Module.register("MMM-SL", {
   // Default module config.
   defaults: {
@@ -41,12 +40,12 @@ Module.register("MMM-SL", {
   getScripts: function() {
     return [
       "moment.js",
-    ]
+    ];
   },
 
   getHeader: function() {
     if ((this.config.debug === true || this.config.showLastUpdatedAlways) && this.config.lastUpdatedInTitle) {
-      let time = moment(this.lastUpdated).format("HH:mm:ss")
+      let time = moment(this.lastUpdated).format("HH:mm:ss");
 
       return "<span class='bright'>" + this.data.header + "</span> <span class='dimmed'><span class='fa fa-refresh'></span> " + time + "</span>";
     } else {
@@ -127,7 +126,6 @@ Module.register("MMM-SL", {
       let direction = -1;
       let displayCount = 0;
       let displayCountMax = this.getDisplayCount(departureArray.SiteId);
-
 
       //departures for current stopName
       for (let i = 0; i < departureArray.departures.length; i++) {
@@ -415,7 +413,7 @@ Module.register("MMM-SL", {
 
       for (let j = 0; j < aType.length; j++) {
         let departure = aType[j];
-        let walkTime = this.getWalkTime(data.id)
+        let walkTime = this.getWalkTime(data.id);
         let num = parseInt(departure.DisplayTime.replace(/\D/g, ""));
 
         if (walkTime > 0 && (num === "" || isNaN(num)) || num < walkTime) {
