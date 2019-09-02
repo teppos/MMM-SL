@@ -8,12 +8,9 @@ module.exports = NodeHelper.create({
 
   //Subclass socketNotificationReceived received.
   socketNotificationReceived: function(notification, payload) {
-    console.log(notification);
-
-    if(notification === "GET_REALTIME_SL"){
-
+    if (notification === "GET_REALTIME_SL") {
       this.config = payload;
-      console.log("Lets get some SL realtime data");
+      console.log("Retrieving SL realtime data");
 
       for (var i = 0; i < this.config.siteids.length; i++) {
         var siteId = this.config.siteids[i];
@@ -21,13 +18,9 @@ module.exports = NodeHelper.create({
 
         this.makeRequest(siteId.id, apiUrl)
       }
-    }
-    else if (notification === "DECREMENT_SL") {
-
-      console.log("Lets decrement the SL data");
-
+    } else if (notification === "DECREMENT_SL") {
+      console.log("Decrementing SL time until departure");
       this.sendSocketNotification("SL_DECREMENT_TIMERS");
-
     }
   },
 
@@ -38,17 +31,17 @@ module.exports = NodeHelper.create({
       method: "GET"
     }, function(error, response, body) {
 
-      if (!error && response.statusCode == 200) {
+      if (!error && response.statusCode === 200) {
         var id = siteId;
         var newBody = JSON.parse(body);
         var tmp = {
-          id : id,
-          result : newBody
+          id: id,
+          result: newBody
         };
-        console.log(id+" " + self.name + ": ",tmp);
+        // console.log(id+" " + self.name + ": ",tmp);
         self.sendSocketNotification("SL_REALTIME_DATA",tmp);
       } else {
-        console.log(self.name + ": ",error);
+        console.log(self.name + ": ", error);
       }
     });
   },
@@ -56,32 +49,27 @@ module.exports = NodeHelper.create({
   getParams: function(siteId) {
     //?key=<DIN API NYCKEL>&siteid=<SITEID>&timewindow=<TIMEWINDOW>
     var params = "?";
-    params += "key="+this.config.realtimeappid;
-    params += "&siteid="+siteId.id;
+    params += "key=" + this.config.realtimeappid;
+    params += "&siteid=" + siteId.id;
 
-    if( siteId.type !== undefined) {
+    if (siteId.type !== undefined) {
       for (var i = 0; i < this.config.types.length; i++) {
         var type = this.config.types[i];
-        if ( siteId.type.includes(type) ) {
-          params+="&"+type+"=true";
+        if (siteId.type.includes(type)) {
+          params += "&" + type + "=true";
         } else {
-          params+="&"+type+"=false";
+          params += "&" + type + "=false";
         }
       }
     }
 
-    /*
-    * Timewindow between 1 - 60 minutes
-    */
-    if( siteId.timewindow !== undefined && siteId.timewindow > 0 && siteId.timewindow < 60) {
+    //Timewindow between 1 - 60 minutes
+    if (siteId.timewindow !== undefined && siteId.timewindow > 0 && siteId.timewindow < 60) {
       params += "&timewindow=" + siteId.timewindow;
     } else {
       params += "&timewindow=" + (((this.config.timewindow < 1) || (this.config.timewindow > 60)) ? 15 : this.config.timewindow);
     }
-    console.log("params: "+params);
+    console.log("params: " + params);
     return params;
   },
-
-
-
 });
