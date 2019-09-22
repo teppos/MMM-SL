@@ -33,6 +33,7 @@ Module.register("MMM-SL", {
     Log.log(this.name + " is starting!");
     this.loaded = false;
     this.lastUpdated = null;
+    this.ableToUpdate = true;
     this.resetData();
     this.getRealTime();
   },
